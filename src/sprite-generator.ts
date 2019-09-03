@@ -34,6 +34,7 @@ export interface CSSClasses {
 
 export interface Options {
   sprites: Sprite[];
+  padding?: number;
   targetFolder: TargetFolder;
   classes: CSSClasses;
   /**
@@ -127,6 +128,11 @@ export class SpriteGenerator {
     const spriter = new SVGSpriter({
       mode: {
         css: true
+      },
+      shape: {
+        spacing: {
+          padding: this.options.padding
+        }
       }
     });
 
@@ -142,12 +148,13 @@ export class SpriteGenerator {
 
       const icons: Icon[] = [];
       for (const shape of data.css.shapes) {
+        const {name, width, height, position} = shape;
         icons.push({
-          fileName: shape.name,
-          width: shape.width.inner,
-          height: shape.height.inner,
-          x: -shape.position.absolute.x,
-          y: -shape.position.absolute.y
+          fileName: name,
+          width: width.inner,
+          height: height.inner,
+          x: Math.abs(position.absolute.x - (width.outer - width.inner) / 2),
+          y: Math.abs(position.absolute.y - (height.outer - height.inner) / 2)
         });
       }
 
@@ -162,7 +169,7 @@ export class SpriteGenerator {
   }
 
   private batchPng(spriteName: string, files: string[], id: number) {
-    Spritesmith.run({src: files}, (error: Error, result: SpritesmithResult) => {
+    Spritesmith.run({src: files, padding: this.options.padding}, (error: Error, result: SpritesmithResult) => {
       if (error) {
         this.done(error.message);
         return;

@@ -48,6 +48,11 @@ class SpriteGenerator {
         const spriter = new SVGSpriter({
             mode: {
                 css: true
+            },
+            shape: {
+                spacing: {
+                    padding: this.options.padding
+                }
             }
         });
         for (const file of files) {
@@ -60,12 +65,13 @@ class SpriteGenerator {
             }
             const icons = [];
             for (const shape of data.css.shapes) {
+                const { name, width, height, position } = shape;
                 icons.push({
-                    fileName: shape.name,
-                    width: shape.width.inner,
-                    height: shape.height.inner,
-                    x: -shape.position.absolute.x,
-                    y: -shape.position.absolute.y
+                    fileName: name,
+                    width: width.inner,
+                    height: height.inner,
+                    x: Math.abs(position.absolute.x - (width.outer - width.inner) / 2),
+                    y: Math.abs(position.absolute.y - (height.outer - height.inner) / 2)
                 });
             }
             this.done({
@@ -78,7 +84,7 @@ class SpriteGenerator {
         });
     }
     batchPng(spriteName, files, id) {
-        Spritesmith.run({ src: files }, (error, result) => {
+        Spritesmith.run({ src: files, padding: this.options.padding }, (error, result) => {
             if (error) {
                 this.done(error.message);
                 return;

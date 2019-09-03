@@ -23,6 +23,7 @@ export interface CSSClasses {
 }
 export interface Options {
     sprites: Sprite[];
+    padding?: number;
     targetFolder: TargetFolder;
     classes: CSSClasses;
     /**
